@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -16,27 +17,42 @@ func main() {
 	fmt.Println("Type HELP for commands, EXIT to quit.")
 
 	scanner := bufio.NewScanner(os.Stdin)
+	_ = scanner
 	for {
 		fmt.Print("> ")
-		if !scanner.Scan() { break }
+		// Используем scanner для чтения строки
+		if !scanner.Scan() {
+			break // Выход по Ctrl+D или концу ввода
+		}
 		line := scanner.Text()
-		if line == "" { continue }
+		if line == "" {
+			continue
+		}
 
+		// Разбиваем строку на слова
 		words := strings.Fields(line)
-		if len(words) == 0 { continue }
-		
+		if len(words) == 0 {
+			continue
+		}
+
 		cmd := words[0]
 		if cmd == "EXIT" || cmd == "exit" {
 			reg.Save(filename)
+			fmt.Println("Данные сохранены. Выход.")
 			break
 		}
 
+		// Обрабатываем команду
 		changed := processCommand(words, reg)
+
+		// Автосохранение при изменении
 		if changed {
 			reg.Save(filename)
 		}
 	}
 }
+
+// ==================== ОБРАБОТКА КОМАНД ====================
 
 func processCommand(w []string, reg *Registry) bool {
 	cmd := w[0]
@@ -45,101 +61,200 @@ func processCommand(w []string, reg *Registry) bool {
 	// --- Массив (M) ---
 	if cmd == "MPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'M')
-		if e != nil { e.Arr.Push(parseInt(w[2])); changed = true }
+		if e != nil {
+			e.Arr.Push(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "MPUSHAT" && len(w) >= 4 {
 		e := reg.GetOrCreate(w[1], 'M')
-		if e != nil { e.Arr.PushAt(parseInt(w[2]), parseInt(w[3])); changed = true }
+		if e != nil {
+			e.Arr.PushAt(parseInt(w[2]), parseInt(w[3]))
+			changed = true
+		}
 	} else if cmd == "MDEL" && len(w) >= 3 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'M' { e.Arr.RemoveAt(parseInt(w[2])); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'M' {
+			e.Arr.RemoveAt(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "MSET" && len(w) >= 4 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'M' { e.Arr.Set(parseInt(w[2]), parseInt(w[3])); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'M' {
+			e.Arr.Set(parseInt(w[2]), parseInt(w[3]))
+			changed = true
+		}
 	} else if cmd == "MGET" && len(w) >= 3 {
 		if e := reg.Find(w[1]); e != nil && e.Type == 'M' {
-			if v, ok := e.Arr.Get(parseInt(w[2])); ok { fmt.Println("Value:", v) }
+			if v, ok := e.Arr.Get(parseInt(w[2])); ok {
+				fmt.Println("Value:", v)
+			} else {
+				fmt.Println("ERROR: index out of range")
+			}
 		}
 	} else if cmd == "MPRINT" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'M' { e.Arr.Print() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'M' {
+			e.Arr.Print()
+		}
 
-	// --- Односвязный (F) ---
+		// --- Односвязный (F) ---
 	} else if cmd == "FPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'F')
-		if e != nil { e.Fwd.Push(parseInt(w[2])); changed = true }
+		if e != nil {
+			e.Fwd.Push(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "FADDH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'F')
-		if e != nil { e.Fwd.AddHead(parseInt(w[2])); changed = true }
+		if e != nil {
+			e.Fwd.AddHead(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "FDEL" && len(w) >= 3 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'F' { e.Fwd.RemoveValue(parseInt(w[2])); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'F' {
+			e.Fwd.RemoveValue(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "FDELH" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'F' { e.Fwd.RemoveHead(); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'F' {
+			e.Fwd.RemoveHead()
+			changed = true
+		}
 	} else if cmd == "FDELT" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'F' { e.Fwd.RemoveTail(); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'F' {
+			e.Fwd.RemoveTail()
+			changed = true
+		}
 	} else if cmd == "FGET" && len(w) >= 3 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'F' { fmt.Println("Index:", e.Fwd.Search(parseInt(w[2]))) }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'F' {
+			fmt.Println("Index:", e.Fwd.Search(parseInt(w[2])))
+		}
 	} else if cmd == "FPRINT" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'F' { e.Fwd.Print() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'F' {
+			e.Fwd.Print()
+		}
 
-	// --- Двусвязный (L) ---
+		// --- Двусвязный (L) ---
 	} else if cmd == "LPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'L')
-		if e != nil { e.Dbl.Push(parseInt(w[2])); changed = true }
+		if e != nil {
+			e.Dbl.Push(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "LADDH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'L')
-		if e != nil { e.Dbl.AddHead(parseInt(w[2])); changed = true }
+		if e != nil {
+			e.Dbl.AddHead(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "LDEL" && len(w) >= 3 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'L' { e.Dbl.RemoveValue(parseInt(w[2])); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'L' {
+			e.Dbl.RemoveValue(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "LDELH" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'L' { e.Dbl.RemoveHead(); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'L' {
+			e.Dbl.RemoveHead()
+			changed = true
+		}
 	} else if cmd == "LDELT" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'L' { e.Dbl.RemoveTail(); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'L' {
+			e.Dbl.RemoveTail()
+			changed = true
+		}
+	} else if cmd == "LGET" && len(w) >= 3 {
+		if e := reg.Find(w[1]); e != nil && e.Type == 'L' {
+			fmt.Println("Index:", e.Dbl.Search(parseInt(w[2])))
+		}
 	} else if cmd == "LPRINT" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'L' { e.Dbl.Print() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'L' {
+			e.Dbl.Print()
+		}
 	} else if cmd == "LPRINTB" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'L' { e.Dbl.PrintBackward() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'L' {
+			e.Dbl.PrintBackward()
+		}
 
-	// --- Стек (S) ---
+		// --- Стек (S) ---
 	} else if cmd == "SPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'S')
-		if e != nil { e.Stk.Push(parseInt(w[2])); changed = true }
+		if e != nil {
+			e.Stk.Push(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "SPOP" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'S' { e.Stk.Pop(); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'S' {
+			e.Stk.Pop()
+			changed = true
+		}
 	} else if cmd == "SPEEK" && len(w) >= 2 {
 		if e := reg.Find(w[1]); e != nil && e.Type == 'S' {
-			if v, ok := e.Stk.Peek(); ok { fmt.Println("Top:", v) }
+			if v, ok := e.Stk.Peek(); ok {
+				fmt.Println("Top:", v)
+			} else {
+				fmt.Println("ERROR: stack is empty")
+			}
 		}
 	} else if cmd == "SPRINT" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'S' { e.Stk.Print() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'S' {
+			e.Stk.Print()
+		}
 
-	// --- Очередь (Q) ---
+		// --- Очередь (Q) ---
 	} else if cmd == "QPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'Q')
-		if e != nil { e.Que.Push(parseInt(w[2])); changed = true }
+		if e != nil {
+			e.Que.Push(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "QPOP" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'Q' { e.Que.Pop(); changed = true }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'Q' {
+			e.Que.Pop()
+			changed = true
+		}
 	} else if cmd == "QPEEK" && len(w) >= 2 {
 		if e := reg.Find(w[1]); e != nil && e.Type == 'Q' {
-			if v, ok := e.Que.Peek(); ok { fmt.Println("Front:", v) }
+			if v, ok := e.Que.Peek(); ok {
+				fmt.Println("Front:", v)
+			} else {
+				fmt.Println("ERROR: queue is empty")
+			}
 		}
 	} else if cmd == "QPRINT" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'Q' { e.Que.Print() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'Q' {
+			e.Que.Print()
+		}
 
-	// --- Дерево (T) ---
+		// --- Дерево (T) ---
 	} else if cmd == "TINSERT" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'T')
-		if e != nil { e.Tree.Insert(parseInt(w[2])); changed = true }
+		if e != nil {
+			e.Tree.Insert(parseInt(w[2]))
+			changed = true
+		}
 	} else if cmd == "TGET" && len(w) >= 3 {
 		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
-			if e.Tree.Search(parseInt(w[2])) { fmt.Println("Found") } else { fmt.Println("Not found") }
+			if e.Tree.Search(parseInt(w[2])) {
+				fmt.Println("Found")
+			} else {
+				fmt.Println("Not found")
+			}
 		}
 	} else if cmd == "TINORDER" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' { e.Tree.PrintInOrder() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
+			e.Tree.PrintInOrder()
+		}
 	} else if cmd == "TPREORDER" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' { e.Tree.PrintPreOrder() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
+			e.Tree.PrintPreOrder()
+		}
 	} else if cmd == "TPOSTORDER" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' { e.Tree.PrintPostOrder() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
+			e.Tree.PrintPostOrder()
+		}
 	} else if cmd == "TLEVEL" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' { e.Tree.PrintLevelOrder() }
+		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
+			e.Tree.PrintLevelOrder()
+		}
 
-	// --- Общие ---
+		// --- Общие ---
 	} else if cmd == "PRINT" {
 		reg.PrintAll()
 	} else if cmd == "HELP" {
@@ -151,9 +266,10 @@ func processCommand(w []string, reg *Registry) bool {
 	return changed
 }
 
+// ==================== ВСПОМОГАТЕЛЬНЫЕ ====================
+
 func parseInt(s string) int {
-	var v int
-	fmt.Sscanf(s, "%d", &v)
+	v, _ := strconv.Atoi(s)
 	return v
 }
 
@@ -164,7 +280,7 @@ func printHelp() {
 	fmt.Println("Список   (F): FPUSH <имя> v | FADDH <имя> v | FDEL <имя> v | FDELH <имя> | FDELT <имя>")
 	fmt.Println("              FGET <имя> v | FPRINT <имя>")
 	fmt.Println("Список   (L): LPUSH <имя> v | LADDH <имя> v | LDEL <имя> v | LDELH <имя> | LDELT <имя>")
-	fmt.Println("              LPRINT <имя> | LPRINTB <имя>")
+	fmt.Println("              LGET <имя> v | LPRINT <имя> | LPRINTB <имя>")
 	fmt.Println("Стек     (S): SPUSH <имя> v | SPOP <имя> | SPEEK <имя> | SPRINT <имя>")
 	fmt.Println("Очередь  (Q): QPUSH <имя> v | QPOP <имя> | QPEEK <имя> | QPRINT <имя>")
 	fmt.Println("Дерево   (T): TINSERT <имя> v | TGET <имя> v")
