@@ -20,16 +20,16 @@ func main() {
 	_ = scanner
 	for {
 		fmt.Print("> ")
-		// Используем scanner для чтения строки
+		// используем scanner для чтения строки
 		if !scanner.Scan() {
-			break // Выход по Ctrl+D или концу ввода
+			break // выход по Ctrl+D или концу ввода
 		}
 		line := scanner.Text()
 		if line == "" {
 			continue
 		}
 
-		// Разбиваем строку на слова
+		// разбиваем строку на слова
 		words := strings.Fields(line)
 		if len(words) == 0 {
 			continue
@@ -42,23 +42,21 @@ func main() {
 			break
 		}
 
-		// Обрабатываем команду
+		// обрабатываем команду
 		changed := processCommand(words, reg)
 
-		// Автосохранение при изменении
+		// автосохранение при изменении
 		if changed {
 			reg.Save(filename)
 		}
 	}
 }
 
-// ==================== ОБРАБОТКА КОМАНД ====================
-
 func processCommand(w []string, reg *Registry) bool {
 	cmd := w[0]
 	changed := false
 
-	// --- Массив (M) ---
+	// Массив (M)
 	if cmd == "MPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'M')
 		if e != nil {
@@ -94,7 +92,7 @@ func processCommand(w []string, reg *Registry) bool {
 			e.Arr.Print()
 		}
 
-		// --- Односвязный (F) ---
+		// Односвязный (F)
 	} else if cmd == "FPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'F')
 		if e != nil {
@@ -131,7 +129,7 @@ func processCommand(w []string, reg *Registry) bool {
 			e.Fwd.Print()
 		}
 
-		// --- Двусвязный (L) ---
+		// Двусвязный (L)
 	} else if cmd == "LPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'L')
 		if e != nil {
@@ -172,7 +170,7 @@ func processCommand(w []string, reg *Registry) bool {
 			e.Dbl.PrintBackward()
 		}
 
-		// --- Стек (S) ---
+		// Стек (S)
 	} else if cmd == "SPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'S')
 		if e != nil {
@@ -197,7 +195,7 @@ func processCommand(w []string, reg *Registry) bool {
 			e.Stk.Print()
 		}
 
-		// --- Очередь (Q) ---
+		// Очередь (Q)
 	} else if cmd == "QPUSH" && len(w) >= 3 {
 		e := reg.GetOrCreate(w[1], 'Q')
 		if e != nil {
@@ -222,39 +220,6 @@ func processCommand(w []string, reg *Registry) bool {
 			e.Que.Print()
 		}
 
-		// --- Дерево (T) ---
-	} else if cmd == "TINSERT" && len(w) >= 3 {
-		e := reg.GetOrCreate(w[1], 'T')
-		if e != nil {
-			e.Tree.Insert(parseInt(w[2]))
-			changed = true
-		}
-	} else if cmd == "TGET" && len(w) >= 3 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
-			if e.Tree.Search(parseInt(w[2])) {
-				fmt.Println("Found")
-			} else {
-				fmt.Println("Not found")
-			}
-		}
-	} else if cmd == "TINORDER" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
-			e.Tree.PrintInOrder()
-		}
-	} else if cmd == "TPREORDER" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
-			e.Tree.PrintPreOrder()
-		}
-	} else if cmd == "TPOSTORDER" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
-			e.Tree.PrintPostOrder()
-		}
-	} else if cmd == "TLEVEL" && len(w) >= 2 {
-		if e := reg.Find(w[1]); e != nil && e.Type == 'T' {
-			e.Tree.PrintLevelOrder()
-		}
-
-		// --- Общие ---
 	} else if cmd == "PRINT" {
 		reg.PrintAll()
 	} else if cmd == "HELP" {
@@ -265,8 +230,6 @@ func processCommand(w []string, reg *Registry) bool {
 
 	return changed
 }
-
-// ==================== ВСПОМОГАТЕЛЬНЫЕ ====================
 
 func parseInt(s string) int {
 	v, _ := strconv.Atoi(s)
@@ -283,7 +246,5 @@ func printHelp() {
 	fmt.Println("              LGET <имя> v | LPRINT <имя> | LPRINTB <имя>")
 	fmt.Println("Стек     (S): SPUSH <имя> v | SPOP <имя> | SPEEK <имя> | SPRINT <имя>")
 	fmt.Println("Очередь  (Q): QPUSH <имя> v | QPOP <имя> | QPEEK <имя> | QPRINT <имя>")
-	fmt.Println("Дерево   (T): TINSERT <имя> v | TGET <имя> v")
-	fmt.Println("              TINORDER <имя> | TPREORDER <имя> | TPOSTORDER <имя> | TLEVEL <имя>")
 	fmt.Println("Общие       : PRINT | HELP | EXIT")
 }
