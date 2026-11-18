@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type SNode struct {
-	Data int
+	Data string
 	Next *SNode
 }
 
@@ -13,7 +13,7 @@ type SList struct {
 	Size int
 }
 
-func (l *SList) Push(val int) {
+func (l *SList) Push(val string) { // добавление в конец
 	n := &SNode{Data: val}
 	if l.Head == nil {
 		l.Head = n
@@ -25,7 +25,7 @@ func (l *SList) Push(val int) {
 	l.Size++
 }
 
-func (l *SList) AddHead(val int) {
+func (l *SList) AddHead(val string) { // добавление в начало
 	n := &SNode{Data: val, Next: l.Head}
 	l.Head = n
 	if l.Tail == nil {
@@ -34,7 +34,7 @@ func (l *SList) AddHead(val int) {
 	l.Size++
 }
 
-func (l *SList) RemoveHead() {
+func (l *SList) RemoveHead() { // удаление из начала
 	if l.Head == nil {
 		return
 	}
@@ -45,7 +45,7 @@ func (l *SList) RemoveHead() {
 	l.Size--
 }
 
-func (l *SList) RemoveTail() {
+func (l *SList) RemoveTail() { //  удаление из конца
 	if l.Head == nil {
 		return
 	}
@@ -64,7 +64,7 @@ func (l *SList) RemoveTail() {
 	l.Size--
 }
 
-func (l *SList) RemoveValue(val int) {
+func (l *SList) RemoveValue(val string) { // удаление первого вхождения
 	if l.Head == nil {
 		return
 	}
@@ -85,7 +85,7 @@ func (l *SList) RemoveValue(val int) {
 	}
 }
 
-func (l *SList) Search(val int) int {
+func (l *SList) Search(val string) int { // поиск по значению
 	cur := l.Head
 	idx := 0
 	for cur != nil {
@@ -101,7 +101,7 @@ func (l *SList) Search(val int) int {
 func (l *SList) Print() {
 	cur := l.Head
 	for cur != nil {
-		fmt.Printf("%d ", cur.Data)
+		fmt.Printf("%s ", cur.Data)
 		cur = cur.Next
 	}
 	fmt.Println()

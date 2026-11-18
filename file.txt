@@ -1,0 +1,5 @@
+M_arr : banana,orange,30
+F_list : 20
+L_dlist : 50
+S_stack : 10,20
+Q_queue : 10,20,30

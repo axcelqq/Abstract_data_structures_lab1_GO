@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type DNode struct {
-	Data int
+	Data string
 	Prev *DNode
 	Next *DNode
 }
@@ -14,7 +14,7 @@ type DList struct {
 	Size int
 }
 
-func (l *DList) Push(val int) {
+func (l *DList) Push(val string) { // добавление в конец
 	n := &DNode{Data: val, Prev: l.Tail}
 	if l.Tail != nil {
 		l.Tail.Next = n
@@ -25,7 +25,7 @@ func (l *DList) Push(val int) {
 	l.Size++
 }
 
-func (l *DList) AddHead(val int) {
+func (l *DList) AddHead(val string) { // добавление в начало
 	n := &DNode{Data: val, Next: l.Head}
 	if l.Head != nil {
 		l.Head.Prev = n
@@ -36,8 +36,10 @@ func (l *DList) AddHead(val int) {
 	l.Size++
 }
 
-func (l *DList) RemoveHead() {
-	if l.Head == nil { return }
+func (l *DList) RemoveHead() { // удаление из начала
+	if l.Head == nil {
+		return
+	}
 	l.Head = l.Head.Next
 	if l.Head != nil {
 		l.Head.Prev = nil
@@ -47,8 +49,10 @@ func (l *DList) RemoveHead() {
 	l.Size--
 }
 
-func (l *DList) RemoveTail() {
-	if l.Tail == nil { return }
+func (l *DList) RemoveTail() { // удаление из конца
+	if l.Tail == nil {
+		return
+	}
 	l.Tail = l.Tail.Prev
 	if l.Tail != nil {
 		l.Tail.Next = nil
@@ -58,13 +62,15 @@ func (l *DList) RemoveTail() {
 	l.Size--
 }
 
-func (l *DList) RemoveValue(val int) {
+func (l *DList) RemoveValue(val string) { // удаление первого вхождения
 	cur := l.Head
 	for cur != nil && cur.Data != val {
 		cur = cur.Next
 	}
-	if cur == nil { return }
-	
+	if cur == nil {
+		return
+	}
+
 	if cur.Prev != nil {
 		cur.Prev.Next = cur.Next
 	} else {
@@ -78,11 +84,13 @@ func (l *DList) RemoveValue(val int) {
 	l.Size--
 }
 
-func (l *DList) Search(val int) int {
+func (l *DList) Search(val string) int { // поиск по значению
 	cur := l.Head
 	idx := 0
 	for cur != nil {
-		if cur.Data == val { return idx }
+		if cur.Data == val {
+			return idx
+		}
 		cur = cur.Next
 		idx++
 	}
@@ -92,16 +100,16 @@ func (l *DList) Search(val int) int {
 func (l *DList) Print() {
 	cur := l.Head
 	for cur != nil {
-		fmt.Printf("%d ", cur.Data)
+		fmt.Printf("%s ", cur.Data)
 		cur = cur.Next
 	}
 	fmt.Println()
 }
 
-func (l *DList) PrintBackward() {
+func (l *DList) PrintBackward() { // вывод в обратном порядке
 	cur := l.Tail
 	for cur != nil {
-		fmt.Printf("%d ", cur.Data)
+		fmt.Printf("%s ", cur.Data)
 		cur = cur.Prev
 	}
 	fmt.Println()

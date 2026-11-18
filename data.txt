@@ -1,1 +1,5 @@
-M_arr : 10
+M_arr : 10,15,99,30
+F_list : 10
+L_dlist : 10
+S_stack : 
+Q_queue : 

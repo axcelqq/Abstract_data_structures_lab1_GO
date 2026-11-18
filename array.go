@@ -3,38 +3,38 @@ package main
 import "fmt"
 
 type Array struct {
-	data []int
+	data []string
 }
 
-func (a *Array) Push(val int) {
+func (a *Array) Push(val string) { // добавление в конец
 	a.data = append(a.data, val)
 }
 
-func (a *Array) PushAt(idx int, val int) {
+func (a *Array) PushAt(idx int, val string) { // вставка по индексу
 	if idx < 0 || idx > len(a.data) {
 		return
 	}
-	a.data = append(a.data[:idx], append([]int{val}, a.data[idx:]...)...)
+	a.data = append(a.data[:idx], append([]string{val}, a.data[idx:]...)...)
 }
 
-func (a *Array) RemoveAt(idx int) {
+func (a *Array) RemoveAt(idx int) { //удаление по индексу
 	if idx < 0 || idx >= len(a.data) {
 		return
 	}
 	a.data = append(a.data[:idx], a.data[idx+1:]...)
 }
 
-func (a *Array) Set(idx int, val int) {
+func (a *Array) Set(idx int, val string) { // замена по индексу
 	if idx >= 0 && idx < len(a.data) {
 		a.data[idx] = val
 	}
 }
 
-func (a *Array) Get(idx int) (int, bool) {
+func (a *Array) Get(idx int) (string, bool) { // чтение по индексу
 	if idx >= 0 && idx < len(a.data) {
 		return a.data[idx], true
 	}
-	return 0, false
+	return "", false
 }
 
 func (a *Array) Print() {
